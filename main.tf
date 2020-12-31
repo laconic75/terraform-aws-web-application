@@ -61,7 +61,7 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_volume" "data_volume" {
+resource "aws_ebs_volume" "data_volume" {
   availability_zone = var.availability_zone
   encrypted         = var.encrypted
   kms_key_id        = var.kms_key_id
@@ -73,7 +73,7 @@ resource "aws_volume" "data_volume" {
   tags = merge(var.standard_tags, var.application_tags)
 }  
 
-resource "aws_volume_attachment" "ebs_att" {
+resource "aws_volume_attachment" "data_volume" {
   device_name = var.ebs_device_name # "/dev/sdg"
   volume_id   = aws_ebs_volume.data_volume.id
   instance_id = aws_instance.web.id
