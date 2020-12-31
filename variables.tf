@@ -45,6 +45,11 @@ variable "user_data" {
 }
 
 ###################  Networking
+variable "has_public_ip" {
+  type = bool
+  default = false
+}
+
 variable "private_ip" {
   type = string
   default = null
