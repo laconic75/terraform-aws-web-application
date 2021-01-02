@@ -44,6 +44,10 @@ variable "user_data" {
   default = null
 }
 
+variable "vpc" {
+  type = string
+}
+
 ###################  Networking
 variable "has_public_ip" {
   type = bool
@@ -60,6 +64,10 @@ variable "subnet_id" {
   default = null
 }
 
+variable "hostname" {
+  type = string
+}
+
 ###################  Security
 variable "iam_instance_profile" {
   type = string
@@ -68,7 +76,7 @@ variable "iam_instance_profile" {
 
 variable "additional_security_groups" {
   type = list(string)
-  default = null
+  default = []
 }
 
 variable "encrypted" {

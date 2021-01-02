@@ -11,11 +11,17 @@ provider "aws" {
   region = var.region
 }
 
+locals {
+  application_tags = merge(var.application_tags, { hostname: var.hostname })
+  hostname_split   = split(".", var.hostname)
+  dns_root         = join(".", slice(local.hostname_split, 1, length(local.hostname_split)))
+}
+
 data "aws_ami" "base_os" {
   most_recent = true
 
   filter {
-    name   = "ami-name"
+    name   = "name"
     values = var.ami_name_filter
   }
 
@@ -33,8 +39,35 @@ data "aws_ami" "base_os" {
 }
 
 data "aws_security_group" "web_application_sg" {
-  name = "frontend_web_application"
-  vpc  = var.vpc
+  name    = "frontend_web_application"
+  vpc_id  = var.vpc
+}
+
+data "aws_route53_zone" "public" {
+  name = local.dns_root
+  private_zone = false
+}
+
+resource "aws_route53_record" "public" {
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = var.hostname
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.web.public_ip]
+}
+
+data "aws_route53_zone" "private" {
+  name = local.dns_root
+  private_zone = true
+  vpc_id = var.vpc
+}
+
+resource "aws_route53_record" "web_server" {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = var.hostname
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.web.private_ip]
 }
 
 resource "aws_instance" "web" {
@@ -49,9 +82,9 @@ resource "aws_instance" "web" {
   user_data                   = var.user_data
   vpc_security_group_ids      = concat([data.aws_security_group.web_application_sg.id], var.additional_security_groups)
 
-  tags = merge(var.standard_tags, var.application_tags)
+  tags = merge(var.standard_tags, local.application_tags)
 
-  root_block_device = {
+  root_block_device {
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
     iops                  = var.root_iops
@@ -70,7 +103,7 @@ resource "aws_ebs_volume" "data_volume" {
   snapshot_id       = var.ebs_snapshot_id
   type              = var.ebs_type
 
-  tags = merge(var.standard_tags, var.application_tags)
+  tags = merge(var.standard_tags, local.application_tags)
 }  
 
 resource "aws_volume_attachment" "data_volume" {
