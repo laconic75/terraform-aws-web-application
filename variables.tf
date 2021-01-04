@@ -31,7 +31,7 @@ variable "ebs_optimized" {
 
 variable "instance_type" {
   type = string
-  default = "m5.medium"
+  default = "m5.large"
 }
 
 variable "region" {
@@ -61,7 +61,6 @@ variable "private_ip" {
 
 variable "subnet_id" {
   type = string
-  default = null
 }
 
 variable "hostname" {
@@ -84,6 +83,10 @@ variable "encrypted" {
   default = true
 }
 
+variable "key_name" {
+  type = string
+}
+
 variable "kms_key_id" {
   type = string
   default = null
@@ -101,7 +104,7 @@ variable "root_iops" {
 }
 
 variable "root_volume_size" {
-  type = string
+  type = number
   default = null
 }
 
@@ -121,8 +124,7 @@ variable "ebs_iops" {
 }
 
 variable "ebs_size" {
-  type = string
-  default = null
+  type = number
 }
 
 variable "ebs_type" {

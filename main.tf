@@ -77,6 +77,7 @@ resource "aws_instance" "web" {
   ebs_optimized               = var.ebs_optimized
   iam_instance_profile        = var.iam_instance_profile
   instance_type               = var.instance_type
+  key_name                    = var.key_name
   private_ip                  = var.private_ip
   subnet_id                   = var.subnet_id
   user_data                   = var.user_data
